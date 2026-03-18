@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from textblob import TextBlob
 
-from data_fetcher import NewsItem
+from data_fetcher import NewsItem, fetch_google_news_rss
 
 
 @dataclass(frozen=True)
@@ -37,7 +37,7 @@ def summarize_news_sentiment(items: list[NewsItem]) -> SentimentSummary:
     return SentimentSummary(polarity_mean=float(mean), polarity_std=float(var**0.5), n_items=len(vals))
 
 
-dedef get_sentiment_score():
+def get_sentiment_score():
     items = fetch_google_news_rss("Nifty OR Indian stock market", limit=20)
     summary = summarize_news_sentiment(items)
 
