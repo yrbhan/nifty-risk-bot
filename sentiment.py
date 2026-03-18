@@ -37,6 +37,17 @@ def summarize_news_sentiment(items: list[NewsItem]) -> SentimentSummary:
     return SentimentSummary(polarity_mean=float(mean), polarity_std=float(var**0.5), n_items=len(vals))
 
 
-def get_sentiment_score():
-    return 0  # temporary fallback
+dedef get_sentiment_score():
+    items = fetch_google_news_rss("Nifty OR Indian stock market", limit=20)
+    summary = summarize_news_sentiment(items)
 
+    if summary.n_items < 5:
+        return 0
+
+    # Penalize high disagreement in news
+    adjusted_score = summary.polarity_mean
+
+    if summary.polarity_std > 0.4:
+        adjusted_score *= 0.5  # reduce confidence
+
+    return adjusted_score

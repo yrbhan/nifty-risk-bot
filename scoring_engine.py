@@ -49,12 +49,12 @@ def calculate_score(data, sentiment_score=0, event_risk=False):
     # ---------------------------
     # 5. News Sentiment
     # ---------------------------
-    if sentiment_score < -0.3:
-        score -= 10
-        reasons.append("Negative news sentiment")
-    elif sentiment_score > 0.3:
+    if sentiment_score < -0.4:
+        score -= 15
+        reasons.append("Strong negative sentiment (risk event)")
+    elif sentiment_score > 0.4:
         score += 5
-        reasons.append("Positive news sentiment")
+        reasons.append("Strong positive sentiment")
 
     # ---------------------------
     # Direction Detection (MOVE HERE)
