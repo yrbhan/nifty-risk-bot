@@ -88,8 +88,6 @@ st.divider()
 # ---------------------------
 # Trade Suggestion (HIGHLIGHT)
 # ---------------------------
-st.markdown("### 💡 Suggested Trade")
-
 st.markdown("### 💡 Suggested Trade (Based on Current Risk)")
 
 st.success(result["trade"])
