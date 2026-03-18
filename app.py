@@ -1,5 +1,5 @@
 import streamlit as st
-from engine_runner import run_engine
+from nifty_risk_bot.core.engine import run_engine
 
 
 # ---------------------------
@@ -113,13 +113,33 @@ st.divider()
 # ---------------------------
 # Reasons
 # ---------------------------
-st.markdown("### 🔍 Reasons")
+st.markdown("### 🔍 Key Risk Factors (Reasons for safety score value and risk level)")
 
-# for reason in result["reasons"]:
-#     st.write(f"- {reason}")
+# Create a more prominent reasons display
+reasons_container = st.container()
 
-for reason in result["reasons"]:
-    st.warning("\n".join(result["reasons"]))
+with reasons_container:
+    for i, reason in enumerate(result["reasons"], 1):
+        # Use different styling based on reason type
+        reason_lower = reason.lower()
+        
+        if (any(keyword in reason_lower for keyword in ["high", "large", "sharp", "danger", "risk event", "major event", "negative", "unstable"]) or
+            "strong negative sentiment" in reason_lower or
+            "trending strongly" in reason_lower):
+            st.error(f"🚨 {reason}")
+        elif (any(keyword in reason_lower for keyword in ["moderate", "falling", "mild"]) or
+              "pre-market movement" in reason_lower):
+            st.warning(f"⚠️ {reason}")
+        elif (any(keyword in reason_lower for keyword in ["stable", "positive", "range-bound", "good for theta"]) or
+              "strong positive sentiment" in reason_lower or
+              "global confirmation" in reason_lower):
+            st.success(f"✅ {reason}")
+        else:
+            st.info(f"📊 {reason}")
+        
+        # Add spacing between reasons
+        if i < len(result["reasons"]):
+            st.write("")
 
 # ---------------------------
 # Position Size
@@ -147,3 +167,27 @@ st.write(f"Nasdaq (1D): {data.get('nasdaq_1d_return')}%")
 st.write(f"Nasdaq (3D): {data.get('nasdaq_3d_return')}%")
 st.write(f"Nifty (1D): {data.get('nifty_1d_return')}%")
 st.write(f"Nifty (3D): {data.get('nifty_3d_return')}%")
+
+# GIFT NIFTY Section
+st.markdown("### 🌍 Pre-Market (GIFT NIFTY)")
+gift_nifty_current = data.get('gift_nifty_current')
+gift_nifty_change = data.get('gift_nifty_change_pct')
+gift_nifty_close = data.get('gift_nifty_close_value')
+
+if gift_nifty_current is not None:
+    st.write(f"GIFT NIFTY Current: {gift_nifty_current}")
+    st.write(f"GIFT NIFTY Change: {gift_nifty_change:+.2f}%")
+    st.write(f"Last NIFTY Close: {gift_nifty_close}")
+    
+    # Visual indicator for pre-market movement
+    if gift_nifty_change is not None:
+        if abs(gift_nifty_change) > 1.5:
+            st.error(f"🚨 Large pre-market gap: {gift_nifty_change:+.2f}%")
+        elif abs(gift_nifty_change) > 0.8:
+            st.warning(f"⚠️ Moderate pre-market movement: {gift_nifty_change:+.2f}%")
+        elif abs(gift_nifty_change) > 0.3:
+            st.info(f"📊 Mild pre-market movement: {gift_nifty_change:+.2f}%")
+        else:
+            st.success(f"✅ Pre-market stable: {gift_nifty_change:+.2f}%")
+else:
+    st.warning("📡 GIFT NIFTY data unavailable")

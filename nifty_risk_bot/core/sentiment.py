@@ -1,14 +1,19 @@
+"""
+Sentiment analysis module for the Nifty Risk Engine.
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 
 from textblob import TextBlob
 
-from data_fetcher import NewsItem, fetch_google_news_rss
+from ..data.fetcher import NewsItem, fetch_google_news_rss
 
 
 @dataclass(frozen=True)
 class SentimentSummary:
+    """Summary of news sentiment analysis."""
     polarity_mean: float  # [-1, 1]
     polarity_std: float
     n_items: int
@@ -25,6 +30,7 @@ def headline_sentiment(title: str) -> float:
 
 
 def summarize_news_sentiment(items: list[NewsItem]) -> SentimentSummary:
+    """Summarize sentiment across multiple news items."""
     if not items:
         return SentimentSummary(polarity_mean=0.0, polarity_std=0.0, n_items=0)
 
@@ -37,7 +43,11 @@ def summarize_news_sentiment(items: list[NewsItem]) -> SentimentSummary:
     return SentimentSummary(polarity_mean=float(mean), polarity_std=float(var**0.5), n_items=len(vals))
 
 
-def get_sentiment_score():
+def get_sentiment_score() -> float:
+    """
+    Get overall sentiment score for market analysis.
+    Returns sentiment in range [-1, 1].
+    """
     items = fetch_google_news_rss("Nifty OR Indian stock market", limit=20)
 
     RISK_KEYWORDS = ["crash", "war", "panic", "default", "collapse", "recession"]

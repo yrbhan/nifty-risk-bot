@@ -1,15 +1,15 @@
-from engine_runner import run_engine
+#!/usr/bin/env python3
+"""
+CLI interface for the Nifty Risk Engine.
+"""
+
+from nifty_risk_bot.core.engine import run_engine
 
 
 def main():
-    # ---------------------------
-    # 1. Run Engine to calculate score
-    # ---------------------------
+    """Run the risk analysis and print results to terminal."""
     result, _ = run_engine()
 
-    # ---------------------------
-    # 5. Print Output
-    # ---------------------------
     print("\n===== MARKET RISK ANALYSIS =====")
     print(f"Score: {result['score']}/100")
     print(f"Risk Level: {result['risk']}")

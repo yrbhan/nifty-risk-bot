@@ -1,5 +1,22 @@
-def calculate_score(data, sentiment_score=0, event_risk=False):
+"""
+Scoring engine for the Nifty Risk Engine.
+"""
 
+from typing import Dict, Any
+
+
+def calculate_score(data: Dict[str, Any], sentiment_score: float = 0, event_risk: bool = False) -> Dict[str, Any]:
+    """
+    Calculate risk score based on market data, sentiment, and event risk.
+    
+    Args:
+        data: Market data dictionary with indicators
+        sentiment_score: Sentiment analysis score [-1, 1]
+        event_risk: Boolean indicating major event risk
+        
+    Returns:
+        Dictionary with score, risk level, direction, and recommendations
+    """
     score = 50
     reasons = []
 
@@ -49,6 +66,27 @@ def calculate_score(data, sentiment_score=0, event_risk=False):
         reasons.append("Recent sharp move (unstable market)")
 
     # ---------------------------
+    # 3C. GIFT NIFTY Pre-Market Movement
+    # ---------------------------
+    gift_nifty_change = data.get("gift_nifty_change_pct", 0)
+    
+    if gift_nifty_change is not None:
+        if abs(gift_nifty_change) > 1.5:
+            score -= 20
+            reasons.append(f"Large pre-market gap ({gift_nifty_change:+.1f}%)")
+        elif abs(gift_nifty_change) > 0.8:
+            score -= 10
+            reasons.append(f"Moderate pre-market movement ({gift_nifty_change:+.1f}%)")
+        elif abs(gift_nifty_change) > 0.3:
+            score -= 5
+            reasons.append(f"Mild pre-market movement ({gift_nifty_change:+.1f}%)")
+        else:
+            score += 5
+            reasons.append("Pre-market stable")
+    else:
+        reasons.append("GIFT NIFTY data unavailable")
+
+    # ---------------------------
     # 4. Event Risk
     # ---------------------------
     if event_risk:
@@ -66,7 +104,7 @@ def calculate_score(data, sentiment_score=0, event_risk=False):
         reasons.append("Strong positive sentiment")
 
     # ---------------------------
-    # Direction Detection (MOVE HERE)
+    # Direction Detection
     # ---------------------------
     direction = "Neutral"
     strength = "Weak"
@@ -83,6 +121,23 @@ def calculate_score(data, sentiment_score=0, event_risk=False):
     elif nifty_trend > 1:
         direction = "Bullish"
         strength = "Weak"
+
+    # Adjust direction based on GIFT NIFTY pre-market movement
+    gift_nifty_change = data.get("gift_nifty_change_pct", 0)
+    if gift_nifty_change is not None:
+        if abs(gift_nifty_change) > 0.5:  # Only consider meaningful moves
+            gift_direction = "Bearish" if gift_nifty_change < -0.5 else "Bullish"
+            gift_strength = "Strong" if abs(gift_nifty_change) > 1.5 else "Weak"
+            
+            # If GIFT NIFTY shows strong directional bias, override or strengthen
+            if gift_strength == "Strong":
+                direction = gift_direction
+                strength = gift_strength
+                reasons.append(f"Strong pre-market {gift_direction.lower()} bias")
+            elif direction == "Neutral":
+                direction = gift_direction
+                strength = gift_strength
+                reasons.append(f"Pre-market {gift_direction.lower()} bias")
 
     # Strengthen with global confirmation
     if direction == "Bearish" and sp500_ret < -1:
