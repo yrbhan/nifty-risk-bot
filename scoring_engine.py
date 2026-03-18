@@ -8,10 +8,10 @@ def calculate_score(data, sentiment_score=0, event_risk=False):
     # ---------------------------
     if data.get("vix_today") and data.get("vix_3day_avg"):
         if data["vix_today"] > data["vix_3day_avg"]:
-            score -= 15
+            score -= 20
             reasons.append("VIX rising (high volatility)")
         else:
-            score += 10
+            score += 15
             reasons.append("VIX stable/falling")
 
     # ---------------------------
@@ -33,11 +33,20 @@ def calculate_score(data, sentiment_score=0, event_risk=False):
     nifty_trend = data.get("nifty_3d_return", 0)
 
     if abs(nifty_trend) > 2:
-        score -= 20
+        score -= 25
         reasons.append("Nifty trending strongly (danger for sellers)")
     else:
         score += 10
         reasons.append("Nifty range-bound (good for theta)")
+
+    # ---------------------------
+    # 3B. Recent Shock Detection
+    # ---------------------------
+    nifty_1d = data.get("nifty_1d_return", 0) or 0
+
+    if abs(nifty_1d) > 1.5:
+        score -= 10
+        reasons.append("Recent sharp move (unstable market)")
 
     # ---------------------------
     # 4. Event Risk

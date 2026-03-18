@@ -48,7 +48,12 @@ st.divider()
 # ---------------------------
 st.markdown("### Market View")
 
-st.write(f"**Direction:** {result['direction']}")
+if result["direction"] == "Bullish":
+    st.success("Direction: Bullish")
+elif result["direction"] == "Bearish":
+    st.error("Direction: Bearish")
+else:
+    st.info("Direction: Neutral")
 st.write(f"**Strength:** {result['strength']}")
 
 st.divider()
@@ -102,6 +107,8 @@ st.markdown("### 📊 Market Snapshot")
 st.write(f"VIX Today: {data.get('vix_today')}")
 st.write(f"VIX 3-day avg: {data.get('vix_3day_avg')}")
 st.write(f"S&P 500 (1D): {data.get('sp500_1d_return')}%")
+st.write(f"S&P 500 (3D): {data.get('sp500_3d_return')}%")
 st.write(f"Nasdaq (1D): {data.get('nasdaq_1d_return')}%")
+st.write(f"Nasdaq (3D): {data.get('nasdaq_3d_return')}%")
 st.write(f"Nifty (1D): {data.get('nifty_1d_return')}%")
 st.write(f"Nifty (3D): {data.get('nifty_3d_return')}%")

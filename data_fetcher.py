@@ -108,15 +108,16 @@ def fetch_market_snapshot() -> dict[str, float | None]:
             return None
         return float(((close.iloc[-1].item() / close.iloc[-4].item()) - 1.0) * 100)
 
-    vix_today = None if vix_close.size < 1 else float(vix_close.iloc[-1].item())
-    vix_3day_avg = None if vix_close.size < 3 else float(vix_close.iloc[-3:].mean().item())
+    vix_today = None if vix_close.size < 1 else round(float(vix_close.iloc[-1].item()), 2)
+    vix_3day_avg = None if vix_close.size < 3 else round(float(vix_close.iloc[-3:].mean().item()), 2)
 
     return {
-        "vix_today": round(vix_today or 0, 2),
-        "vix_3day_avg": round(vix_3day_avg or 0, 2),
+        "vix_today": vix_today,
+        "vix_3day_avg": vix_3day_avg,
         "sp500_1d_return": round(one_day_return(sp_close) or 0, 2),
+        "sp500_3d_return": round(three_day_return(sp_close) or 0, 2),
         "nasdaq_1d_return": round(one_day_return(nas_close) or 0, 2),
+        "nasdaq_3d_return": round(three_day_return(nas_close) or 0, 2),
         "nifty_1d_return": round(one_day_return(nifty_close) or 0, 2),
         "nifty_3d_return": round(three_day_return(nifty_close) or 0, 2),
     }
-

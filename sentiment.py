@@ -39,6 +39,21 @@ def summarize_news_sentiment(items: list[NewsItem]) -> SentimentSummary:
 
 def get_sentiment_score():
     items = fetch_google_news_rss("Nifty OR Indian stock market", limit=20)
+
+    RISK_KEYWORDS = ["crash", "war", "panic", "default", "collapse", "recession"]
+    POSITIVE_CONTEXT = ["resolved", "ends", "eases", "falls", "declines", "cooling", "recovery"]
+    risk_hits = 0
+
+    for item in items:
+        title = (item.title or "").lower()
+
+        if any(word in title for word in RISK_KEYWORDS):
+            if not any(pos in title for pos in POSITIVE_CONTEXT):
+                risk_hits += 1
+
+    if risk_hits >= 2:
+        return -0.8
+
     summary = summarize_news_sentiment(items)
 
     if summary.n_items < 5:
