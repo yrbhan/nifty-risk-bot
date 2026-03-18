@@ -16,13 +16,9 @@ st.title("📊 Nifty Weekly Risk Dashboard")
 
 
 # ---------------------------
-# Fetch Data
+# Run Engine to calculate score and get data
 # ---------------------------
-data = fetch_market_snapshot()
-sentiment_score = get_sentiment_score()
-event_risk = False  # can automate later
-
-result = calculate_score(data, sentiment_score, event_risk)
+result, data = run_engine()
 
 
 # ---------------------------
