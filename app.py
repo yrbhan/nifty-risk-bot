@@ -1,7 +1,5 @@
 import streamlit as st
-from data_fetcher import fetch_market_snapshot
-from sentiment import get_sentiment_score
-from scoring_engine import calculate_score
+from engine_runner import run_engine
 
 
 # ---------------------------
